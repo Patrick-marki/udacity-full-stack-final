@@ -1,5 +1,6 @@
 import fs from "fs";
 import Jimp from "jimp";
+import https from 'https';
 
 
 // filterImageFromURL
@@ -12,6 +13,12 @@ import Jimp from "jimp";
  export async function filterImageFromURL(inputURL) {
   return new Promise(async (resolve, reject) => {
     try {
+      https.get(inputURL, (res) => {
+        console.log(`Status Code: ${res.statusCode}`);
+      }).on('error', (e) => {
+        console.error(`Error getting image: ${e.message}`);
+        reject(e);
+      });
       const photo = await Jimp.read(inputURL);
       const outpath =
         "/tmp/filtered." + Math.floor(Math.random() * 2000) + ".jpg";
@@ -23,6 +30,7 @@ import Jimp from "jimp";
           resolve(outpath);
         });
     } catch (error) {
+      console.log("Error: " + error);
       reject(error);
     }
   });

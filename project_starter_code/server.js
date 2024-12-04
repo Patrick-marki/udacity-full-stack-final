@@ -1,3 +1,4 @@
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util.js';
@@ -5,10 +6,12 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util.js';
 
 
   // Init the Express application
+  import cors from 'cors';
   const app = express();
+  app.use(cors()); //allow all cors 
 
   // Set the network port
-  const port = process.env.PORT || 8082;
+  const port = process.env.PORT || 8080;
   
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
@@ -34,15 +37,18 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util.js';
   app.get("/filteredimage", async (req, res) => {
     const { image_url } = req.query;
     if (!image_url) {
+
       return res.status(400).send("image_url is required");
     }
     try {
       console.log(image_url);
+      console.log("before filterImageFromURL");
       const filteredpath = await filterImageFromURL(image_url);
+      console.log("after filterImageFromURL");
       console.log(filteredpath);
       res.status(200).sendFile(filteredpath, () => deleteLocalFiles([filteredpath]));
     } catch (error) {
-      res.status(422).send("unable to process image");
+      res.status(422).send("unable to process image " + error);
     }
   });
   
