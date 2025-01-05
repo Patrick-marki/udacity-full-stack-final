@@ -1,6 +1,6 @@
+import axios from 'axios';
 import fs from "fs";
 import Jimp from "jimp";
-import https from 'https';
 
 
 // filterImageFromURL
@@ -13,13 +13,14 @@ import https from 'https';
  export async function filterImageFromURL(inputURL) {
   return new Promise(async (resolve, reject) => {
     try {
-      https.get(inputURL, (res) => {
-        console.log(`Status Code: ${res.statusCode}`);
-      }).on('error', (e) => {
-        console.error(`Error getting image: ${e.message}`);
-        reject(e);
+      const photoBuffer = await axios.get(inputURL, {
+        responseType: 'arraybuffer',
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        }
       });
-      const photo = await Jimp.read(inputURL);
+      const photo = await Jimp.read(photoBuffer.data);
       const outpath =
         "/tmp/filtered." + Math.floor(Math.random() * 2000) + ".jpg";
       await photo
